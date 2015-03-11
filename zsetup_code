@@ -1,3 +1,5 @@
+Basic Setup:
+
 1.	*create chirper.js
 Chirper = Ember.Application.create()
 
@@ -29,3 +31,50 @@ Chirper.Router.map(function() {
 <h1> Chirper!</h1>
 
 <h3> Here are some awesome Chirps:</h3>
+
+
+Add Hard-Coded Chirps to display on home page:
+
+1.	*create store.js
+var chirps = [
+  {
+  	id: '1',
+  	text: 'Here is the very first chirp! Yippee!',
+  	user_id: '1'
+  },
+  {
+  	id: '2',
+  	text: 'Here is the second chirp from me, user 1!',
+  	user_id: '1'
+  },
+  {
+  	id: '3',
+  	text: 'Here is a new additional chirp, from user 2!',
+  	user_id: '2'
+  }
+]
+
+2.	*Add script tag for store.js to index.html
+<script src="store.js"></script>
+
+3.	*create routes/chirps.js to add model
+Chirper.ChirpsRoute = Ember.Route.extend({
+  model: function(){
+  	return chirps;  //model returns the chirps array set in the sample data. This is now available in the controller and template
+  }
+});
+
+4.	*Add script tag to index.html
+<script src="routes/chirps.js"></script>
+
+5.	*Use the model in the template: templates/chirps.hbs
+<h1> Chirper!</h1>
+
+<h4> Here are some awesome Chirps:</h4>
+<h1></h1>
+  {{#each}}
+    <h5>{{text}}</h5>
+    <h6> user: {{user_id}}</h6>
+    <h3></h3>
+  {{/each}}
+
