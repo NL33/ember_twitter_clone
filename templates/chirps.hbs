@@ -8,3 +8,23 @@
     <h3></h3>
   {{/each}}
 
+<h4> Add a Chirp </h4>
+{{#if isAddingChirp}}
+  <form>
+    <div class="form-group">
+      <label for="text">Text</label>
+      {{textarea value=text   id="text"  class="form-control"  maxlength="140"}}
+    </div>
+
+    <div class="form-group">
+      <label for="user_id">Your Name</label>
+      {{input value=user_id   id="user_id"   class="form-control"}}
+    </div>
+
+    <button class="btn btn-primary" {{action 'save_chirp'}}>Add this Chirp</button>
+  </form>
+{{else}}
+  <p>{{body}}</p>
+
+  <button class="btn btn-primary" {{action 'add_new_chirp'}}>Add Chirp</button>
+{{/if}}
