@@ -1,0 +1,1 @@
+Chirper = Ember.Application.create();

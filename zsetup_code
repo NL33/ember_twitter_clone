@@ -1,0 +1,31 @@
+1.	*create chirper.js
+Chirper = Ember.Application.create()
+
+2.	*router.js
+Chirper.Router.map(function() { 
+	this.resource('chirps', {path: '/'});  //chirps will be home page
+});
+
+3.	*index.html
+<script src="chirper.js"></script>
+  <script src="router.js"></script>
+
+ <script>
+    EmberHandlebarsLoader.loadTemplates(['chirps', 'application']);
+  </script>
+
+4.	*template/application.hbs
+<div class='container'>
+  <nav class='navbar navbar-default' role='navigation'>
+    <ul class='nav navbar-nav'>
+      <li>{{#link-to 'chirps'}}Chirps{{/link-to}}</li>
+    </ul>
+  </nav>
+
+{{outlet}}
+ </div>
+
+5.	*template/chirps.hbs
+<h1> Chirper!</h1>
+
+<h3> Here are some awesome Chirps:</h3>
