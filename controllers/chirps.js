@@ -1,4 +1,4 @@
-Chirper.ChirpsController = Ember.ArrayController.extend({  //here, the “ObjectController.extend”
+Chirper.ChirpsController = Ember.ArrayController.extend({  
   sortProperties: ["date"],
   isAddingChirp: false,
   actions: {

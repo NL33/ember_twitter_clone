@@ -33,7 +33,7 @@ Chirper.Router.map(function() {
 <h3> Here are some awesome Chirps:</h3>
 
 
-Add Hard-Coded Chirps to display on home page:
+***Add Hard-Coded Chirps to display on home page:***
 
 1.	*create store.js
 var chirps = [
@@ -77,4 +77,51 @@ Chirper.ChirpsRoute = Ember.Route.extend({
     <h6> user: {{user_id}}</h6>
     <h3></h3>
   {{/each}}
+
+***Add ability for users to add chirps:***
+1.	*Add form for adding chirp to template: template/chirps.hbs
+
+<h4> Add a Chirp </h4>
+{{#if isAddingChirp}}
+  <form>
+    <div class="form-group">
+      <label for="text">Text</label>
+      {{textarea value=text   id="text"  class="form-control"  maxlength="140"}}
+    </div>
+
+    <div class="form-group">
+      <label for="user_id">Your Name</label>
+      {{input value=user_id   id="user_id"   class="form-control"}}
+    </div>
+
+    <button class="btn btn-primary" {{action 'save_chirp'}}>Add this Chirp</button>
+  </form>
+{{else}}
+  <p>{{body}}</p>
+
+  <button class="btn btn-primary" {{action 'add_new_chirp'}}>Add Chirp</button>
+{{/if}}
+
+2.	*Add these actions to the controller: controllers/chirps.js
+
+Chirper.ChirpsController = Ember.ArrayController.extend({ 
+  sortProperties: ["date"],
+  isAddingChirp: false,
+  actions: {
+    add_new_chirp: function() {
+      this.set('isAddingChirp', true);
+    },
+    save_chirp: function() {
+      chirps.addObject({id: (chirps.length + 1).toString(), 
+      text: this.text, 
+      user_id: this.user_id,
+      date: new Date().toLocaleString()
+      })
+      this.set('isAddingChirp', false);
+    }
+  }
+});
+
+3.	*Add the new chirps.js controller to index.html:
+<script src="controllers/chirps.js"></script>
 
