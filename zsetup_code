@@ -125,3 +125,169 @@ Chirper.ChirpsController = Ember.ArrayController.extend({
 3.	*Add the new chirps.js controller to index.html:
 <script src="controllers/chirps.js"></script>
 
+***Add Ability to Comment on a Chirp***
+
+Add Comment to current index of Chirps (adding directly to listing, without separate chirp show page): 
+
+1.	Add comment array as part of the elements of the Chirps array:
+Chirper.ChirpsController = Ember.ArrayController.extend({  
+  sortProperties: ["date"],
+  isAddingChirp: false,
+  actions: {
+    add_new_chirp: function() {
+      this.set('isAddingChirp', true);
+    },
+    save_chirp: function() {
+      chirps.addObject({id: (chirps.length + 1).toString(), 
+      text: this.text, 
+      user_id: this.user_id,
+      date: new Date().toLocaleString(),
+      comments: []
+      })
+      this.set('isAddingChirp', false);
+    }
+  }
+});
+
+2.	Add comment action to chirps listing: templates/chirps.hbs
+<h1> Chirper!</h1>
+
+<h4> Here are some awesome Chirps:</h4>
+<h1></h1>
+  {{#each}}
+    <h5>{{text}}</h5>
+    <h6> user: {{user_id}}</h6>
+     <h3>Add Comment:</h3>
+              <div class="form-group">
+                {{input value=commentersname class="form-control" placeholder="Your name"}}
+              </div>
+              <div class="form-group">
+                {{input value=comment class="form-control" placeholder="Your Comment" maxlength="141"}}
+              </div>
+              <button class="btn btn-default" {{action 'addComment' comment}}>Submit</button>
+            </form>
+    <h3></h3>
+  {{/each}}
+
+3.	Add comment functionality to controller: controllers/chirps.js:
+Chirper.ChirpsController = Ember.ArrayController.extend({  
+  sortProperties: ["date"],
+  isAddingChirp: false,
+  actions: {
+    add_new_chirp: function() {
+      this.set('isAddingChirp', true);
+    },
+    save_chirp: function() {
+      chirps.addObject({id: (chirps.length + 1).toString(), 
+      text: this.text, 
+      user_id: this.user_id,
+      date: new Date().toLocaleString()
+      })
+      this.set('isAddingChirp', false);
+    },
+    addComment: function(comment) {
+      var chirpComments = this.get('model.comments');
+      chirpComments.addObject(comment);
+    }
+  }
+});
+***
+
+To Add Comment to Individual Chirp (requires further DS definitions and serializers in store.js that are not currently built in (included for illustration):
+
+1)	*Add show page for individual chirp:
+1.	Add to router.js (with nested new-comment):
+Chirper.Router.map(function() { 
+	this.resource('chirps', {path: '/'});  //chirps will be home page
+    this.resource('chirp', {path: 'chirps/:chirp_id'}, function() {
+       this.resource('new-comment');
+    });
+});
+
+2.	Create the model within the routes: routes/chirp.js:
+Chirper.ChirpRoute = Ember.Route.extend({
+  model: function(params) {
+    return this.store.find('chirp', params.chirp_id);
+  }
+});
+
+3.	Create template: templates/chirp.hbs
+<h1>{{text}}</h1>
+
+<h2>Comments</h2>
+
+{{#each comments}}
+  <p>{{text}}</p>
+{{/each}}
+
+<p>{{#link-to 'new-comment' this.id class="btn btn-default"}}New comment{{/link-to}}</p>
+
+4.	add the new routes, controller, and template to index.html:
+<script src="routes/chirp.js"></script>
+  <script src="controllers/chirp.js"></script>
+
+ <script>
+    EmberHandlebarsLoader.loadTemplates(['chirps', 'application', 'chirp', 'new-comment']);
+  </script>
+
+5.	Add link to the specific chirp on the home page listing all chirps: templates/chirps.hbs
+<h4> Here are some awesome Chirps:</h4>
+<h1></h1>
+  {{#each}}
+    <h5>{{#link-to 'text' this.id}}{{chirp}} {{/link-to}}</h5>
+    <h6> user: {{user_id}}</h6>
+    
+    <h3></h3>
+  {{/each}}
+
+2)	*Add ability to comment on the individual chirp
+1.	add link to new comments in template for individual chirp: templates/chirp.hbs
+<h1>{{text}}</h1>
+
+<h2>Comments</h2>
+
+{{#each comments}}
+  <p>{{text}}</p>
+{{/each}}
+
+<p>{{#link-to 'new-comment' this.id class="btn btn-default"}}New comment{{/link-to}}</p>
+
+2.	create ‘add-comment’ template: templates/new-comment.hbs
+
+3.	add add-comment resource to router.js  (as nested under chirp show page)
+Chirper.Router.map(function() { 
+	this.resource('chirps', {path: '/'});  //chirps will be home page
+         this.resource('chirp', {path: 'chirps/:chirp_id'}, function() {
+            this.resource('new-comment');
+        });
+});
+4.	load into index the new-comment template and new-comment controller 
+  <script src="controllers/new-comment.js"></script>
+
+ <script>
+    EmberHandlebarsLoader.loadTemplates(['chirps', 'application', 'new-comment']);
+  </script>
+
+5.	create comments controller: controllers/comments.js
+Chirper.CommentsController = Ember.ArrayController.extend({  
+  needs: ['chirp'] //sets up array of other controller objects (comments) inside the chirp array via the controller property below (controllers.chirp)
+
+  actions: {
+    save_comment: function() {
+      var comment = this.store.createRecord('comment', { //store.createRecord creates the record in the store (which contains all the data for records loaded from the server)
+        text: this.get('text') //get retrieves the value of a property from an object
+      });
+      comment.save();
+
+      var self = this;
+      self.set('text',''); //set = sets the key to the value
+
+      var chirp = this.get('controllers.chirp.model');
+      chirp.get('comments').pushObject(comment); //pushObject= pushes the object into the end of the array. 
+      chirp.save()
+
+      this.transitionToRoute('chirp', chirp.id); //transitionToRoute transitions the application into another route
+    }
+  }
+});
+
